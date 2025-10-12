@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: bug-tracker
+
+  jwt:
+    secret: replace_this_with_secure_random_base64_secret
+    expiration-seconds: 3600
+  security:
+    jwt:
+      issuer: bugtracker
