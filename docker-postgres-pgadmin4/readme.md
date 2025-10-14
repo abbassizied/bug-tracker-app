@@ -11,5 +11,5 @@
 
    * **pgAdmin4:** [http://localhost:5050](http://localhost:5050)
 
-     * Login → `admin@local.com` / `admin123`
-   * **PostgreSQL:** `Host=postgres`, `Port=5432`, `User=admin`, `Password=admin123`, `Database=mydatabase`
+     * Login → `abbassizied@outlook.fr` / `admin123`
+   * **PostgreSQL:** `Host=postgres`, `Port=5432`, `User=admin`, `Password=admin123`, `Database=db-bug-tracker`
