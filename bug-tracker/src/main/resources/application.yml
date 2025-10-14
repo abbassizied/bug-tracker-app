@@ -1,10 +1,24 @@
-spring:
-  application:
-    name: bug-tracker
+# App config
+server:
+  port: 8082
 
-  jwt:
-    secret: replace_this_with_secure_random_base64_secret
-    expiration-seconds: 3600
-  security:
-    jwt:
-      issuer: bugtracker
+# MySQL config
+spring:
+  sql:
+    init:
+      mode: always
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://host.docker.internal:3306/db_bug_tracker?useSSL=false&serverTimezone=UTC}
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    password: ${SPRING_DATASOURCE_PASSWORD:root}
+
+# Logging config
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql: TRACE

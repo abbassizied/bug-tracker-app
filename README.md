@@ -23,53 +23,89 @@ mvn test -Dtest=ModularityTest
 
 ---
 
-## **Bug Tracking System: Roles and Responsibilities**
-
+## Bug Tracking System: Roles and Responsibilities
 The Bug Tracking System is designed with distinct user roles, each granted specific permissions and tools to streamline the bug resolution process.
 
-### **🐞 Tester (Bug Reporter)**
+### 🐞 Tester (Bug Reporter)
 Testers are responsible for identifying, documenting, and tracking bugs.
-*   **Report Bugs:** Create detailed bug reports with:
-    *   Bug Name, ID, and Description
-    *   Type, Priority, and Severity
-    *   Project Name, Start Date, and Due Date
-*   **Manage Reports:** View and manage all bugs they have reported.
-*   **Assign Bugs:** Assign newly reported bugs to specific developers.
-*   **Attach Evidence:** Include screenshots or files to support the bug report (within a 5MB size limit).
-*   **Communicate:**
-    *   Automatically send email notifications to developers when a bug is assigned.
-    *   Initiate and participate in direct chat rooms with developers.
 
-### **👨💻 Developer (Bug Resolver)**
+- **Report Bugs**: Create detailed bug reports with:
+  - Bug Name, ID, and Description
+  - Steps to Reproduce
+  - Type, Priority, and Severity
+  - Environment Details (OS, Browser, Version)
+- **Manage Reports**: View and track all bugs they have reported
+- **Assign Bugs**: Assign newly reported bugs to specific developers
+- **Attach Evidence**: Include screenshots, logs, or video recordings to demonstrate the bug
+- **Verify Fixes**: Confirm when bugs are properly resolved
+- **Update Status**: Change status to "Reopened" if fix is inadequate
+
+### 👨💻 Developer (Bug Resolver)
 Developers are responsible for addressing and resolving bugs assigned to them.
-*   **View Assignments:** Access a dedicated list of all bugs assigned to them.
-*   **Update Status:** Change a bug's status (e.g., "In Progress," "Fixed," "Cannot Reproduce") as work progresses.
-*   **Collaborate:** Join chat rooms with testers for direct communication and clarification.
-*   **Access Resources:** Search for information and access useful links to aid in bug resolution.
 
-### **👔 Project Manager (Project Overseer)**
-Project Managers monitor project health and team performance.
-*   **Dashboard View:** Access a comprehensive overview of all testers, developers, and bugs in the system.
-*   **Performance Analytics:** Calculate team and individual performance metrics based on:
-    *   Number of bugs raised and resolved.
-    *   Bug difficulty and severity levels.
-*   **Reporting:** Generate and export reports on bug status, team performance, and project progress.
+- **View Assignments**: Access prioritized list of all bugs assigned to them
+- **Update Status**: Change bug status through resolution workflow:
+  - "Investigating" → "In Progress" → "Fixed" → "Ready for Testing"
+- **Add Technical Details**: Include root cause analysis and resolution notes
+- **Request Clarification**: Seek additional information from testers when needed
+- **Mark as "Cannot Reproduce"**: When bug cannot be replicated with provided information
 
-### **🦸 System Administrator (Platform Manager)**
-Admins have full system control, focusing on user, project, and system configuration.
-*   **User Management:** Create, view, update, and deactivate all user accounts.
-*   **Project Management:** Create new projects and assign team members (developers & testers) to them.
-*   **System Configuration:** Define and maintain standard options for the system, such as:
-    *   Bug Types, Severity Levels, and Statuses.
-*   **Data Maintenance:** Oversee and maintain core data, including project details, developer lists, and tester lists.
+### 👔 Project Manager (Bug Oversight)
+Project Managers monitor bug trends and team effectiveness.
+
+- **Bug Dashboard**: View real-time overview of all active, critical, and aging bugs
+- **Priority Management**: Adjust bug priorities and reassign resources as needed
+- **Trend Analysis**: Monitor bug frequency, resolution times, and recurrence rates
+- **SLA Monitoring**: Track compliance with bug resolution time targets
+- **Quality Metrics**: Generate reports on bug density, escape rate, and fix effectiveness
+
+### 🦸 System Administrator (Platform Manager)
+Admins maintain the bug tracking platform and standards.
+
+- **User Management**: Create and manage tester and developer accounts
+- **Workflow Configuration**: Define and maintain bug status workflows
+- **Classification Setup**: Configure bug types, severity levels, and priority scales
+- **Access Control**: Manage permissions and security settings
+- **System Maintenance**: Ensure platform availability and performance
 
 ---
 
+## 🧩 Modular Package Structure (Spring Modulith)
 
-
-
-
-
+```
+bug-tracker/
+├── src/main/java/io/github/abbassizi/bugtracker/
+│   ├── BugTrackerApplication.java
+│   ├── bugs/
+│   │   ├── Bug.java
+│   │   ├── BugService.java
+│   │   ├── BugController.java
+│   │   ├── BugRepository.java
+│   │   └── package-info.java
+│   ├── users/
+│   │   ├── User.java
+│   │   ├── UserService.java
+│   │   ├── UserController.java
+│   │   ├── UserRepository.java
+│   │   └── package-info.java
+│   ├── projects/
+│   │   ├── Project.java
+│   │   ├── ProjectService.java
+│   │   ├── ProjectController.java
+│   │   ├── ProjectRepository.java
+│   │   └── package-info.java
+│   └── notifications/
+│       ├── NotificationService.java
+│       ├── NotificationListener.java
+│       └── package-info.java
+├── src/main/resources/
+│   └── application.yml
+└── src/test/java/io/github/abbassizi/bugtracker/
+    ├── bugs/
+    ├── users/
+    ├── projects/
+    └── notifications/
+```
 
 
 
