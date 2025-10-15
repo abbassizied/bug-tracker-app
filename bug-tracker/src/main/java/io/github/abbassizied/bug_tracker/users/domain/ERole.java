@@ -1,6 +1,6 @@
-package io.github.abbassizied.bug_tracker.users.internal;
+package io.github.abbassizied.bug_tracker.users.domain;
 
-public enum Role {
+public enum ERole {
     ROLE_ADMIN,
     ROLE_PROJECT_MANAGER,
     ROLE_DEVELOPER,

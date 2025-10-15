@@ -22,3 +22,8 @@ logging:
   level:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql: TRACE
+
+# JWT config
+jwt:
+  secret: your-base64-encoded-256-bit-secret-key-here-with-at-least-32-chars
+  expiration: 86400000
