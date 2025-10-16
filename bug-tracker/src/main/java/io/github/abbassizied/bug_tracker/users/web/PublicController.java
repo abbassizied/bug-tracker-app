@@ -12,7 +12,7 @@ public class PublicController {
 
     @GetMapping
     public String publicTest() {
-        log.info("=== PUBLIC DEBUG ENDPOINT HIT ===");
-        return "Public debug endpoint works!";
+        log.info("=== PUBLIC ENDPOINT HIT ===");
+        return "Public endpoint works!";
     }
 }

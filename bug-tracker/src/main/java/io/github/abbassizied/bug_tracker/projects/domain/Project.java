@@ -1,4 +1,4 @@
-package io.github.abbassizied.bug_tracker.projects.internal;
+package io.github.abbassizied.bug_tracker.projects.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
