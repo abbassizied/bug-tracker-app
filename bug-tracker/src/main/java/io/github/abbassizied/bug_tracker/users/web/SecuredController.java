@@ -8,15 +8,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/api/test")
-public class TestController {
+@RequestMapping("/api/secured")
+public class SecuredController {
 
     @GetMapping("/all")
-    public String allAccess() {
-        return "Public Content.";
-    }
-
-    @GetMapping("/user")
     @PreAuthorize("hasRole('DEVELOPER') or hasRole('TESTER') or hasRole('PROJECT_MANAGER') or hasRole('ADMIN')")
     public String userAccess() {
         return "User Content.";

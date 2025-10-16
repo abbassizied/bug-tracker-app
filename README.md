@@ -15,10 +15,15 @@ mvn test -Dtest=ModularityTest
     - Modules expose only intended APIs
     - Architecture is consistent
 
-##
+## JWT Secret Key
 
+- To generate a proper Base64 secret:
+```sh
+# Generate a proper Base64 secret (64 characters)
+openssl rand -base64 64
+```
 
-
+## 
 
 
 ---

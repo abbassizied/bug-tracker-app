@@ -21,8 +21,12 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.github.abbassizied.bug_tracker.users.jwt.AuthEntryPointJwt;
 import io.github.abbassizied.bug_tracker.users.jwt.AuthTokenFilter;
+import io.github.abbassizied.bug_tracker.users.jwt.JwtUtils;
 import io.github.abbassizied.bug_tracker.users.service.UserDetailsServiceImpl;
 
 @EnableWebSecurity
@@ -31,15 +35,21 @@ public class SecurityConfig {
 
 	private final UserDetailsServiceImpl userDetailsService;
 	private final AuthEntryPointJwt unauthorizedHandler;
+	private final JwtUtils jwtUtils;
 
-	public SecurityConfig(UserDetailsServiceImpl userDetailsService, AuthEntryPointJwt unauthorizedHandler) {
+	private static final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
+
+	public SecurityConfig(UserDetailsServiceImpl userDetailsService,
+			AuthEntryPointJwt unauthorizedHandler,
+			JwtUtils jwtUtils) {
 		this.userDetailsService = userDetailsService;
 		this.unauthorizedHandler = unauthorizedHandler;
+		this.jwtUtils = jwtUtils;
 	}
 
 	@Bean
 	public AuthTokenFilter authenticationJwtTokenFilter() {
-		return new AuthTokenFilter();
+		return new AuthTokenFilter(jwtUtils, userDetailsService);
 	}
 
 	@Bean
@@ -80,9 +90,19 @@ public class SecurityConfig {
 				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 				.exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-				.authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/**").permitAll()
-						// .requestMatchers("/api/test/**").permitAll()
-						.anyRequest().authenticated());
+				.authorizeHttpRequests(auth -> {
+					log.info("Configuring authorization rules");
+					auth
+							// Public endpoints
+							.requestMatchers("/api/auth/**").permitAll() // This should allow both signup and signin
+							.requestMatchers("/h2-console/**").permitAll()
+							.requestMatchers("/api/public/**").permitAll()
+							// Authenticated endpoints
+							.anyRequest().authenticated();
+					log.info("Public endpoints: /api/auth/**, /api/public/**, /h2-console/**");
+				}
+
+				);
 
 		http.authenticationProvider(authenticationProvider());
 

@@ -25,5 +25,6 @@ logging:
 
 # JWT config
 jwt:
-  secret: your-base64-encoded-256-bit-secret-key-here-with-at-least-32-chars
+  # your-base64-encoded-256-bit-secret-key-here-with-at-least-32-chars
+  secret: awEMozFrmTMymcMyc4U+WhsWl7+QaF7AanycUxeRLgd41syZzsJEro9slqOmcBti4FzafFXBo4MBt3qz345Wow==
   expiration: 86400000
