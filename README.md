@@ -28,90 +28,113 @@ openssl rand -base64 64
 
 ---
 
-## Bug Tracking System: Roles and Responsibilities
-The Bug Tracking System is designed with distinct user roles, each granted specific permissions and tools to streamline the bug resolution process.
+## 🐛 Bug Tracking System — Roles & Access Control
 
-### 🐞 Tester (Bug Reporter)
-Testers are responsible for identifying, documenting, and tracking bugs.
+The **Bug Tracking System** manages software project issues across multiple teams using **modular architecture (Spring Modulith)** and **role-based security (Spring Security)**.
 
-- **Report Bugs**: Create detailed bug reports with:
-  - Bug Name, ID, and Description
-  - Steps to Reproduce
-  - Type, Priority, and Severity
-  - Environment Details (OS, Browser, Version)
-- **Manage Reports**: View and track all bugs they have reported
-- **Assign Bugs**: Assign newly reported bugs to specific developers
-- **Attach Evidence**: Include screenshots, logs, or video recordings to demonstrate the bug
-- **Verify Fixes**: Confirm when bugs are properly resolved
-- **Update Status**: Change status to "Reopened" if fix is inadequate
+Each role is granted **specific privileges** that align with their real workflow and your existing REST endpoints.
 
-### 👨💻 Developer (Bug Resolver)
-Developers are responsible for addressing and resolving bugs assigned to them.
+### 👤 Roles Overview
 
-- **View Assignments**: Access prioritized list of all bugs assigned to them
-- **Update Status**: Change bug status through resolution workflow:
-  - "Investigating" → "In Progress" → "Fixed" → "Ready for Testing"
-- **Add Technical Details**: Include root cause analysis and resolution notes
-- **Request Clarification**: Seek additional information from testers when needed
-- **Mark as "Cannot Reproduce"**: When bug cannot be replicated with provided information
+### 🐞 🧪 **Tester** (Bug Reporter)
 
-### 👔 Project Manager (Bug Oversight)
-Project Managers monitor bug trends and team effectiveness.
+Responsible for identifying, documenting, and tracking software bugs.
 
-- **Bug Dashboard**: View real-time overview of all active, critical, and aging bugs
-- **Priority Management**: Adjust bug priorities and reassign resources as needed
-- **Trend Analysis**: Monitor bug frequency, resolution times, and recurrence rates
-- **SLA Monitoring**: Track compliance with bug resolution time targets
-- **Quality Metrics**: Generate reports on bug density, escape rate, and fix effectiveness
+**Permissions**
 
-### 🦸 System Administrator (Platform Manager)
-Admins maintain the bug tracking platform and standards.
+* Create new bug reports (`POST /api/bugs`)
+* View bugs they reported (`GET /api/bugs/reporter/{id}`)
+* Update status of reported bugs (e.g. “Reopened”)
+* Assign bugs to developers (`PATCH /api/bugs/{id}/assign`)
+* Attach additional evidence (description, logs, etc.)
 
-- **User Management**: Create and manage tester and developer accounts
-- **Workflow Configuration**: Define and maintain bug status workflows
-- **Classification Setup**: Configure bug types, severity levels, and priority scales
-- **Access Control**: Manage permissions and security settings
-- **System Maintenance**: Ensure platform availability and performance
+**Typical Authorities**
+
+```text
+ROLE_TESTER
+```
+
+### 👨💻 **Developer** (Bug Resolver)
+
+Handles bugs assigned to them and ensures proper resolution.
+
+**Permissions**
+
+* View assigned bugs (`GET /api/bugs/assignee/{id}`)
+* Update bug status (e.g., “In Progress”, “Fixed”)
+* Add technical details and resolution notes (`PUT /api/bugs/{id}`)
+* Mark bugs as “Cannot Reproduce”
+
+**Typical Authorities**
+
+```text
+ROLE_DEVELOPER
+```
+
+### 👔 **Project Manager** (Bug Oversight)
+
+Oversees project quality and team productivity.
+
+**Permissions**
+
+* View all projects and associated bugs
+  (`GET /api/projects`, `GET /api/bugs`)
+* View bug trends and metrics (via reporting endpoints)
+* Adjust bug priorities or reassign developers (`PATCH /api/bugs/{id}/priority`)
+* Archive or activate projects (`PATCH /api/projects/{id}/archive` / `activate`)
+
+**Typical Authorities**
+
+```text
+ROLE_MANAGER
+```
+
+### 🦸 **System Administrator** (Platform Manager)
+
+Manages system configuration, users, and access control.
+
+**Permissions**
+
+* Manage users (`/api/users/**`)
+* Configure roles and permissions
+* Delete or archive projects
+* Full visibility on all modules
+
+**Typical Authorities**
+
+```text
+ROLE_ADMIN
+```
 
 ---
 
 ## 🧩 Modular Package Structure (Spring Modulith)
 
 ```
-bug-tracker/
-├── src/main/java/io/github/abbassizi/bugtracker/
-│   ├── BugTrackerApplication.java
-│   ├── bugs/
-│   │   ├── Bug.java
-│   │   ├── BugService.java
-│   │   ├── BugController.java
-│   │   ├── BugRepository.java
-│   │   └── package-info.java
-│   ├── users/
-│   │   ├── User.java
-│   │   ├── UserService.java
-│   │   ├── UserController.java
-│   │   ├── UserRepository.java
-│   │   └── package-info.java
-│   ├── projects/
-│   │   ├── Project.java
-│   │   ├── ProjectService.java
-│   │   ├── ProjectController.java
-│   │   ├── ProjectRepository.java
-│   │   └── package-info.java
-│   └── notifications/
-│       ├── NotificationService.java
-│       ├── NotificationListener.java
-│       └── package-info.java
-├── src/main/resources/
-│   └── application.yml
-└── src/test/java/io/github/abbassizi/bugtracker/
-    ├── bugs/
-    ├── users/
-    ├── projects/
-    └── notifications/
+src/main/java/io/github/abbassizied/bug_tracker
+│
+├── bugs/
+│   ├── domain/
+│   ├── service/
+│   ├── web/
+│   └── BugEvents.java
+│
+├── projects/
+│   ├── domain/
+│   ├── service/
+│   ├── web/
+│   └── ProjectEvents.java
+│
+└── users/
+    ├── domain/
+    ├── service/
+    ├── web/
+    └── UserEvents.java
 ```
+- Each module can publish or listen for events, but no module directly calls another module’s service class.
 
+
+##
 
 
 

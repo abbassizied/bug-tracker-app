@@ -146,3 +146,69 @@ public class BugEventListener {
 | Use UUIDs for module-safe references | Avoid foreign key coupling        |
 
 ---
+ 
+## 🧩 Understanding How to Use Your `...Events` Classes in Spring Modulith
+
+Spring Modulith introduces **application events between modules** — to let modules communicate **without hard dependencies**.
+
+So the idea is:
+
+* One module **publishes** an event (using `ApplicationEventPublisher`)
+* Another module **listens** for it (using `@ApplicationModuleListener` — note: *not* `ApplicationModuleEventListener`)
+
+✅ Your event records (`BugCreated`, `ProjectDeletedEvent`, etc.) are exactly what you need — they represent **domain events**.
+
+### Example: Emit Event from Bugs Module
+
+```java
+package io.github.abbassizied.bug_tracker.bugs.service;
+
+import io.github.abbassizied.bug_tracker.bugs.BugEvents;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+public class BugServiceImpl implements BugService {
+
+    private final ApplicationEventPublisher eventPublisher;
+
+    @Override
+    public Bug createBug(Bug bug) {
+        // save bug (repository logic)
+        bugRepository.save(bug);
+
+        // 🔥 Publish domain event
+        eventPublisher.publishEvent(
+            new BugEvents.BugCreated(bug.getId(), bug.getProjectId(), bug.getReporterId(), bug.getTitle())
+        );
+
+        return bug;
+    }
+}
+```
+ 
+### Example: Listen to an Event in Another Module (e.g., Projects)
+
+```java
+package io.github.abbassizied.bug_tracker.projects.listener;
+
+import io.github.abbassizied.bug_tracker.bugs.BugEvents;
+import org.springframework.modulith.events.ApplicationModuleListener;
+import org.springframework.stereotype.Component;
+
+@Component
+public class BugEventListener {
+
+    @ApplicationModuleListener
+    void onBugCreated(BugEvents.BugCreated event) {
+        System.out.println("🪲 Bug created for project " + event.projectId() + " → " + event.title());
+        // Example: update project stats, send notification, etc.
+    }
+}
+```
+
+✅ That’s the correct way to communicate across modules in **Spring Modulith**.
+
+---

@@ -10,10 +10,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -24,6 +24,8 @@ public class ProjectController {
 
     private final ProjectService projectService;
 
+    // 🔐 Only Manager or Admin can create projects
+    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     @PostMapping
     public ResponseEntity<ProjectResponse> createProject(@Valid @RequestBody ProjectRequest projectRequest,
             @RequestHeader("X-User-Id") Long ownerId) {
@@ -42,15 +44,19 @@ public class ProjectController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    // 🔐 All authenticated users can view
+    @PreAuthorize("isAuthenticated()")
     @GetMapping
     public ResponseEntity<List<ProjectResponse>> getAllProjects() {
         log.info("Fetching all projects");
         List<ProjectResponse> projects = projectService.getAllProjects().stream()
                 .map(this::mapToResponse)
-                .collect(Collectors.toList());
+                .toList();
         return ResponseEntity.ok(projects);
     }
 
+    // 🔐 All authenticated users can view
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
     public ResponseEntity<ProjectResponse> getProjectById(@PathVariable Long id) {
         log.info("Fetching project by ID: {}", id);
@@ -58,24 +64,30 @@ public class ProjectController {
         return ResponseEntity.ok(mapToResponse(project));
     }
 
+    // 🔐 Manager, Admin, or the project owner can view
+    @PreAuthorize("hasAnyRole('MANAGER','ADMIN') or #ownerId == authentication.principal.id")
     @GetMapping("/owner/{ownerId}")
     public ResponseEntity<List<ProjectResponse>> getProjectsByOwner(@PathVariable Long ownerId) {
         log.info("Fetching projects for owner ID: {}", ownerId);
         List<ProjectResponse> projects = projectService.getProjectsByOwner(ownerId).stream()
                 .map(this::mapToResponse)
-                .collect(Collectors.toList());
+                .toList();
         return ResponseEntity.ok(projects);
     }
 
+    // 🔐 Manager, Admin
+    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     @GetMapping("/status/{status}")
     public ResponseEntity<List<ProjectResponse>> getProjectsByStatus(@PathVariable ProjectStatus status) {
         log.info("Fetching projects with status: {}", status);
         List<ProjectResponse> projects = projectService.getProjectsByStatus(status).stream()
                 .map(this::mapToResponse)
-                .collect(Collectors.toList());
+                .toList();
         return ResponseEntity.ok(projects);
     }
 
+    // 🔐 Manager or Admin
+    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<ProjectResponse> updateProject(@PathVariable Long id,
             @Valid @RequestBody ProjectRequest projectRequest) {
@@ -91,6 +103,8 @@ public class ProjectController {
         return ResponseEntity.ok(mapToResponse(updatedProject));
     }
 
+    // 🔐 Only Admin
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
         log.info("Deleting project with ID: {}", id);
@@ -98,6 +112,8 @@ public class ProjectController {
         return ResponseEntity.noContent().build();
     }
 
+    // 🔐 Manager or Admin
+    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     @PatchMapping("/{id}/archive")
     public ResponseEntity<ProjectResponse> archiveProject(@PathVariable Long id) {
         log.info("Archiving project with ID: {}", id);
@@ -105,6 +121,7 @@ public class ProjectController {
         return ResponseEntity.ok(mapToResponse(archivedProject));
     }
 
+    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     @PatchMapping("/{id}/activate")
     public ResponseEntity<ProjectResponse> activateProject(@PathVariable Long id) {
         log.info("Activating project with ID: {}", id);
@@ -112,6 +129,8 @@ public class ProjectController {
         return ResponseEntity.ok(mapToResponse(activatedProject));
     }
 
+    // 🔐 Manager, Admin, or Owner
+    @PreAuthorize("hasAnyRole('MANAGER','ADMIN') or #ownerId == authentication.principal.id")
     @GetMapping("/owner/{ownerId}/count")
     public ResponseEntity<Long> countProjectsByOwner(@PathVariable Long ownerId) {
         log.info("Counting projects for owner ID: {}", ownerId);

@@ -2,12 +2,14 @@ package io.github.abbassizied.bug_tracker.bugs.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.modulith.events.ApplicationModuleEventListener;
+import org.springframework.modulith.events.ApplicationModuleListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.github.abbassizied.bug_tracker.bugs.domain.*;
 import io.github.abbassizied.bug_tracker.bugs.repo.BugRepository;
+import io.github.abbassizied.bug_tracker.projects.ProjectEvents.ProjectDeletedEvent;
+import io.github.abbassizied.bug_tracker.projects.ProjectEvents.UserDeletedEvent;
 
 import java.util.List;
 
@@ -22,15 +24,16 @@ public class BugServiceImpl implements BugService {
     @Override
     public Bug createBug(Bug bug) {
         log.info("Creating new bug: {}", bug.getTitle());
-        
+
         if (bugRepository.existsByTitleAndProjectId(bug.getTitle(), bug.getProjectId())) {
-            throw new IllegalArgumentException("Bug with title '" + bug.getTitle() + "' already exists in this project");
+            throw new IllegalArgumentException(
+                    "Bug with title '" + bug.getTitle() + "' already exists in this project");
         }
-        
+
         if (bug.getStatus() == null) {
             bug.setStatus(BugStatus.OPEN);
         }
-        
+
         Bug savedBug = bugRepository.save(bug);
         log.info("Bug created successfully with ID: {}", savedBug.getId());
         return savedBug;
@@ -39,20 +42,21 @@ public class BugServiceImpl implements BugService {
     @Override
     public Bug updateBug(Long bugId, Bug bugDetails) {
         log.info("Updating bug with ID: {}", bugId);
-        
+
         Bug existingBug = bugRepository.findById(bugId)
                 .orElseThrow(() -> new IllegalArgumentException("Bug not found with ID: " + bugId));
-        
+
         if (bugRepository.existsByTitleAndProjectId(bugDetails.getTitle(), existingBug.getProjectId()) &&
-            !existingBug.getTitle().equals(bugDetails.getTitle())) {
-            throw new IllegalArgumentException("Bug with title '" + bugDetails.getTitle() + "' already exists in this project");
+                !existingBug.getTitle().equals(bugDetails.getTitle())) {
+            throw new IllegalArgumentException(
+                    "Bug with title '" + bugDetails.getTitle() + "' already exists in this project");
         }
-        
+
         existingBug.setTitle(bugDetails.getTitle());
         existingBug.setDescription(bugDetails.getDescription());
         existingBug.setSeverity(bugDetails.getSeverity());
         existingBug.setStatus(bugDetails.getStatus());
-        
+
         Bug updatedBug = bugRepository.save(existingBug);
         log.info("Bug updated successfully: {}", updatedBug.getTitle());
         return updatedBug;
@@ -61,10 +65,10 @@ public class BugServiceImpl implements BugService {
     @Override
     public void deleteBug(Long bugId) {
         log.info("Deleting bug with ID: {}", bugId);
-        
+
         Bug bug = bugRepository.findById(bugId)
                 .orElseThrow(() -> new IllegalArgumentException("Bug not found with ID: " + bugId));
-        
+
         bugRepository.delete(bug);
         log.info("Bug deleted successfully: {}", bug.getTitle());
     }
@@ -122,10 +126,10 @@ public class BugServiceImpl implements BugService {
     @Override
     public Bug updateBugStatus(Long bugId, BugStatus status) {
         log.info("Updating bug status to {} for bug ID: {}", status, bugId);
-        
+
         Bug bug = bugRepository.findById(bugId)
                 .orElseThrow(() -> new IllegalArgumentException("Bug not found with ID: " + bugId));
-        
+
         bug.setStatus(status);
         Bug updatedBug = bugRepository.save(bug);
         log.info("Bug status updated successfully: {} -> {}", updatedBug.getTitle(), status);
@@ -135,15 +139,15 @@ public class BugServiceImpl implements BugService {
     @Override
     public Bug assignBugToDeveloper(Long bugId, Long assigneeId) {
         log.info("Assigning bug ID: {} to developer ID: {}", bugId, assigneeId);
-        
+
         Bug bug = bugRepository.findById(bugId)
                 .orElseThrow(() -> new IllegalArgumentException("Bug not found with ID: " + bugId));
-        
+
         bug.setAssigneeId(assigneeId);
         if (bug.getStatus() == BugStatus.OPEN) {
             bug.setStatus(BugStatus.IN_PROGRESS);
         }
-        
+
         Bug assignedBug = bugRepository.save(bug);
         log.info("Bug assigned successfully: {} to developer {}", assignedBug.getTitle(), assigneeId);
         return assignedBug;
@@ -152,15 +156,15 @@ public class BugServiceImpl implements BugService {
     @Override
     public Bug unassignBug(Long bugId) {
         log.info("Unassigning bug ID: {}", bugId);
-        
+
         Bug bug = bugRepository.findById(bugId)
                 .orElseThrow(() -> new IllegalArgumentException("Bug not found with ID: " + bugId));
-        
+
         bug.setAssigneeId(null);
         if (bug.getStatus() == BugStatus.IN_PROGRESS) {
             bug.setStatus(BugStatus.OPEN);
         }
-        
+
         Bug unassignedBug = bugRepository.save(bug);
         log.info("Bug unassigned successfully: {}", unassignedBug.getTitle());
         return unassignedBug;
@@ -186,7 +190,7 @@ public class BugServiceImpl implements BugService {
     }
 
     // Spring Modulith Event Listeners for inter-module communication
-    @ApplicationModuleEventListener
+    @ApplicationModuleListener
     public void onProjectDeleted(ProjectDeletedEvent event) {
         log.info("Handling project deletion for project ID: {}", event.projectId());
         List<Bug> projectBugs = bugRepository.findByProjectId(event.projectId());
@@ -196,10 +200,10 @@ public class BugServiceImpl implements BugService {
         }
     }
 
-    @ApplicationModuleEventListener
+    @ApplicationModuleListener
     public void onUserDeleted(UserDeletedEvent event) {
         log.info("Handling user deletion for user ID: {}", event.userId());
-        
+
         // Unassign bugs assigned to this user
         List<Bug> assignedBugs = bugRepository.findByAssigneeId(event.userId());
         assignedBugs.forEach(bug -> {
@@ -209,7 +213,7 @@ public class BugServiceImpl implements BugService {
             }
         });
         bugRepository.saveAll(assignedBugs);
-        
+
         log.info("Unassigned {} bugs for deleted user ID: {}", assignedBugs.size(), event.userId());
     }
 }

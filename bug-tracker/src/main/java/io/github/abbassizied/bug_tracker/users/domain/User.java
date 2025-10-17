@@ -58,6 +58,8 @@ public class User {
     @Column(nullable = false, length = 50)
     private String lastName;
 
+    private boolean active;
+
     /** Roles granted to this user */
     @Builder.Default
     @ManyToMany(fetch = FetchType.LAZY)
