@@ -1,8 +1,6 @@
 # bug-tracker-app
 
-
-- Keywords: React Router, ...
-
+---
 
 ## Run Modularity Verification
 
@@ -22,9 +20,6 @@ mvn test -Dtest=ModularityTest
 # Generate a proper Base64 secret (64 characters)
 openssl rand -base64 64
 ```
-
-## 
-
 
 ---
 
@@ -110,27 +105,6 @@ ROLE_ADMIN
 
 ## 🧩 Modular Package Structure (Spring Modulith)
 
-```
-src/main/java/io/github/abbassizied/bug_tracker
-│
-├── bugs/
-│   ├── domain/
-│   ├── service/
-│   ├── web/
-│   └── BugEvents.java
-│
-├── projects/
-│   ├── domain/
-│   ├── service/
-│   ├── web/
-│   └── ProjectEvents.java
-│
-└── users/
-    ├── domain/
-    ├── service/
-    ├── web/
-    └── UserEvents.java
-```
 - Each module can publish or listen for events, but no module directly calls another module’s service class.
 
 
