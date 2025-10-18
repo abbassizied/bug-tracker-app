@@ -1,10 +1,13 @@
 package io.github.abbassizied.bug_tracker.projects.service;
 
+import io.github.abbassizied.bug_tracker.events.ProjectArchived;
 import io.github.abbassizied.bug_tracker.projects.domain.Project;
 import io.github.abbassizied.bug_tracker.projects.domain.ProjectStatus;
 import io.github.abbassizied.bug_tracker.projects.repo.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +20,7 @@ import java.util.List;
 public class ProjectServiceImpl implements ProjectService {
 
     private final ProjectRepository projectRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     public Project createProject(Project project) {
@@ -109,6 +113,10 @@ public class ProjectServiceImpl implements ProjectService {
         project.setStatus(ProjectStatus.ARCHIVED);
         Project archivedProject = projectRepository.save(project);
         log.info("Project archived successfully: {}", archivedProject.getName());
+
+        // Trigger: Project archiving
+        applicationEventPublisher.publishEvent(new ProjectArchived(projectId));
+
         return archivedProject;
     }
 
@@ -135,5 +143,30 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional(readOnly = true)
     public long countProjectsByOwner(Long ownerId) {
         return projectRepository.countByOwnerId(ownerId);
+    }
+
+    @Override
+    public void assignDefaultProjectsToNewUser(Long userId) {
+        log.info("Assigning default projects to new user with ID: {}", userId);
+        // Implementation logic here
+    }
+
+    @Override
+    public void removeUserFromAllProjects(Long userId) {
+        log.info("Removing user with ID: {} from all projects", userId);
+        // Implementation logic here
+
+    }
+
+    @Override
+    public void notifyProjectMembersOfNewBug(Long projectId, Long bugId) {
+        log.info("Notifying project members of new bug with ID: {} in project ID: {}", bugId, projectId);
+        // Implementation logic here
+    }
+
+    @Override
+    public void updateProjectStatusOnBugResolution(Long projectId, Long bugId) {
+        log.info("Updating project status for project ID: {} based on bug resolution with ID: {}", projectId, bugId);
+        // Implementation logic here
     }
 }

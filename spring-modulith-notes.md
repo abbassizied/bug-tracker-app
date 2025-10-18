@@ -1,9 +1,22 @@
 # 
-//-------------------------------------------------------
+
+- [Building Scalable Modular Monoliths with Spring Boot Modulith: | From Monolith to Modular](https://medium.com/@vinodjagwani/building-scalable-modular-monoliths-with-spring-boot-modulith-from-monolith-to-modular-d95989f47d2c)
+- [spring-boot-modulith-fundamentals](https://github.com/kstojanovski/spring-boot-modulith-fundamentals)
+- [Introduction to Spring Modulith](https://www.baeldung.com/spring-modulith)
+- [A Practical Guide to Creating a Spring Modulith Project](https://dzone.com/articles/creating-a-spring-modulith-project-practical-guide)
+- [Spring Modulith Doc](https://docs.spring.io/spring-modulith/reference/index.html)
+- [A modular monolith application built with Spring Modulith](https://github.com/sivaprasadreddy/spring-modular-monolith)
+- [spring-modulith-sample](https://github.com/vinodjagwani/spring-modulith-sample) 
+
+---
+
+```
 cd docker-postgres-pgadmin4/
 cd bug-tracker/
 cd docker-mysql-pma/
-//-------------------------------------------------------
+```
+
+---
 
 - Modular Monolith is an architectural style where our source code is structured on the concept of modules.
 - Spring Modulith is a project by Spring that can be used for modular monolith applications that guide developers in finding and working with application modules. 

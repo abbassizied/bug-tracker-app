@@ -2,14 +2,11 @@ package io.github.abbassizied.bug_tracker.bugs.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.modulith.events.ApplicationModuleListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.github.abbassizied.bug_tracker.bugs.domain.*;
 import io.github.abbassizied.bug_tracker.bugs.repo.BugRepository;
-import io.github.abbassizied.bug_tracker.projects.ProjectEvents.ProjectDeletedEvent;
-import io.github.abbassizied.bug_tracker.projects.ProjectEvents.UserDeletedEvent;
 
 import java.util.List;
 
@@ -189,31 +186,25 @@ public class BugServiceImpl implements BugService {
         return bugRepository.countByProjectIdAndStatus(projectId, status);
     }
 
-    // Spring Modulith Event Listeners for inter-module communication
-    @ApplicationModuleListener
-    public void onProjectDeleted(ProjectDeletedEvent event) {
-        log.info("Handling project deletion for project ID: {}", event.projectId());
-        List<Bug> projectBugs = bugRepository.findByProjectId(event.projectId());
-        if (!projectBugs.isEmpty()) {
-            bugRepository.deleteAll(projectBugs);
-            log.info("Deleted {} bugs for project ID: {}", projectBugs.size(), event.projectId());
+    @Override
+    public void closeAllProjectBugs(Long projectId) {
+        log.info("Closing all open bugs for project ID: {}", projectId);
+        List<Bug> openBugs = bugRepository.findByProjectIdAndStatus(projectId, BugStatus.OPEN);
+        for (Bug bug : openBugs) {
+            bug.setStatus(BugStatus.CLOSED);
         }
+        bugRepository.saveAll(openBugs);
+        log.info("Closed {} bugs for project ID: {}", openBugs.size(), projectId);
+
     }
 
-    @ApplicationModuleListener
-    public void onUserDeleted(UserDeletedEvent event) {
-        log.info("Handling user deletion for user ID: {}", event.userId());
+    @Override
+    public List<Bug> findByProjectId(Long projectId) {
+        return bugRepository.findByProjectId(projectId);
+    }
 
-        // Unassign bugs assigned to this user
-        List<Bug> assignedBugs = bugRepository.findByAssigneeId(event.userId());
-        assignedBugs.forEach(bug -> {
-            bug.setAssigneeId(null);
-            if (bug.getStatus() == BugStatus.IN_PROGRESS) {
-                bug.setStatus(BugStatus.OPEN);
-            }
-        });
-        bugRepository.saveAll(assignedBugs);
-
-        log.info("Unassigned {} bugs for deleted user ID: {}", assignedBugs.size(), event.userId());
+    @Override
+    public void deleteAll(List<Bug> bugs) {
+        bugRepository.deleteAll(bugs);
     }
 }

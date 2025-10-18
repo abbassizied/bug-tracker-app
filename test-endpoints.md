@@ -154,8 +154,8 @@
 
 ```json
 {
-  "username": "john_doe",
-  "password": "securePassword123"
+  "username": "admin",
+  "password": "admin123"
 }
 ```
 
@@ -292,7 +292,7 @@ curl -X GET http://localhost:8082/api/projects/1 \
 > Only `ROLE_PROJECT_MANAGER` and `ROLE_ADMIN` can view by owner.
 
 ```bash
-curl -X GET http://localhost:8082/api/projects/owner/1 \
+curl -X GET http://localhost:8082/api/projects/owner/3 \
 -H "Authorization: Bearer <MANAGER_OR_ADMIN_TOKEN>"
 ```
 
@@ -315,7 +315,7 @@ curl -X GET http://localhost:8082/api/projects/status/ARCHIVED \
 > `ROLE_PROJECT_MANAGER` or `ROLE_ADMIN`
 
 ```bash
-curl -X GET http://localhost:8082/api/projects/owner/1/count \
+curl -X GET http://localhost:8082/api/projects/owner/3/count \
 -H "Authorization: Bearer <MANAGER_OR_ADMIN_TOKEN>"
 ```
 
@@ -407,7 +407,7 @@ curl -X GET http://localhost:8082/api/bugs/project/1 \
 > `ROLE_TESTER` (self) or `ROLE_PROJECT_MANAGER` / `ROLE_ADMIN`
 
 ```bash
-curl -X GET http://localhost:8082/api/bugs/reporter/101 \
+curl -X GET http://localhost:8082/api/bugs/reporter/3 \
 -H "Authorization: Bearer <TESTER_OR_MANAGER_TOKEN>"
 ```
 
@@ -416,7 +416,7 @@ curl -X GET http://localhost:8082/api/bugs/reporter/101 \
 > `ROLE_DEVELOPER` (self) or `ROLE_PROJECT_MANAGER` / `ROLE_ADMIN`
 
 ```bash
-curl -X GET http://localhost:8082/api/bugs/assignee/201 \
+curl -X GET http://localhost:8082/api/bugs/assignee/3 \
 -H "Authorization: Bearer <DEV_OR_MANAGER_TOKEN>"
 ```
 
@@ -434,7 +434,7 @@ curl -X GET http://localhost:8082/api/bugs/status/OPEN \
 > Accessible to `ROLE_PROJECT_MANAGER` or `ROLE_ADMIN`
 
 ```bash
-curl -X GET http://localhost:8082/api/bugs/severity/HIGH \
+curl -X GET http://localhost:8082/api/bugs/severity/MEDIUM \
 -H "Authorization: Bearer <MANAGER_OR_ADMIN_TOKEN>"
 ```
 
@@ -452,7 +452,7 @@ curl -X GET http://localhost:8082/api/bugs/project/1/unassigned \
 > `ROLE_TESTER` (if reporter) or `ROLE_PROJECT_MANAGER` / `ROLE_ADMIN`
 
 ```bash
-curl -X PUT http://localhost:8082/api/bugs/2 \
+curl -X PUT http://localhost:8082/api/bugs/1 \
 -H "Content-Type: application/json" \
 -H "Authorization: Bearer <TESTER_OR_MANAGER_TOKEN>" \
 -d '{
@@ -472,11 +472,11 @@ curl -X PUT http://localhost:8082/api/bugs/2 \
 
 ```bash
 # Developer marks as FIXED
-curl -X PATCH http://localhost:8082/api/bugs/2/status/FIXED \
+curl -X PATCH http://localhost:8082/api/bugs/1/status/FIXED \
 -H "Authorization: Bearer <DEVELOPER_TOKEN>"
 
 # Tester verifies fix
-curl -X PATCH http://localhost:8082/api/bugs/2/status/VERIFIED \
+curl -X PATCH http://localhost:8082/api/bugs/1/status/VERIFIED \
 -H "Authorization: Bearer <TESTER_TOKEN>"
 ```
 
@@ -485,7 +485,7 @@ curl -X PATCH http://localhost:8082/api/bugs/2/status/VERIFIED \
 > Only `ROLE_PROJECT_MANAGER` or `ROLE_ADMIN`
 
 ```bash
-curl -X PATCH http://localhost:8082/api/bugs/4/assign/202 \
+curl -X PATCH http://localhost:8082/api/bugs/1/assign/3 \
 -H "Authorization: Bearer <MANAGER_TOKEN>"
 ```
 
@@ -494,7 +494,7 @@ curl -X PATCH http://localhost:8082/api/bugs/4/assign/202 \
 > Only `ROLE_PROJECT_MANAGER` or `ROLE_ADMIN`
 
 ```bash
-curl -X PATCH http://localhost:8082/api/bugs/3/unassign \
+curl -X PATCH http://localhost:8082/api/bugs/1/unassign \
 -H "Authorization: Bearer <MANAGER_TOKEN>"
 ```
 
@@ -546,7 +546,7 @@ Content-Type: application/json
 - **✅ Valid Request**
 
 ```bash
-GET http://localhost:8080/api/users
+GET http://localhost:8082/api/users
 ```
 
 - **Requires:** `ROLE_ADMIN`
@@ -584,7 +584,7 @@ GET http://localhost:8080/api/users
 - **✅ Valid Request**
 
 ```
-GET http://localhost:8080/api/users/2
+GET http://localhost:8082/api/users/2
 ```
 
 - **Allowed Roles:** `ADMIN`, `MANAGER`, `DEVELOPER`, `TESTER`
@@ -614,7 +614,7 @@ GET http://localhost:8080/api/users/2
 - **✅ Valid Request**
 
 ```
-GET http://localhost:8080/api/users/role/ROLE_DEVELOPER
+GET http://localhost:8082/api/users/role/ROLE_DEVELOPER
 ```
 
 - **Allowed Roles:** `ADMIN`, `MANAGER`
@@ -645,7 +645,7 @@ GET http://localhost:8080/api/users/role/ROLE_DEVELOPER
 - **✅ Valid Request**
 
 ```
-GET http://localhost:8080/api/users/count/role/ROLE_DEVELOPER
+GET http://localhost:8082/api/users/count/role/ROLE_DEVELOPER
 ```
 
 - **Expected 200 Response**
@@ -666,7 +666,7 @@ GET http://localhost:8080/api/users/count/role/ROLE_DEVELOPER
 - **✅ Valid Request**
 
 ```
-PUT http://localhost:8080/api/users/2
+PUT http://localhost:8082/api/users/2
 ```
 
 - **Body:**
@@ -706,7 +706,7 @@ PUT http://localhost:8080/api/users/2
 - **✅ Valid Request**
 
 ```
-PATCH http://localhost:8080/api/users/2/deactivate
+PATCH http://localhost:8082/api/users/2/deactivate
 ```
 
 - **Requires:** `ROLE_ADMIN`
@@ -735,7 +735,7 @@ PATCH http://localhost:8080/api/users/2/deactivate
 - **✅ Valid Request**
 
 ```
-DELETE http://localhost:8080/api/users/3
+DELETE http://localhost:8082/api/users/2
 ```
 
 - **Requires:** `ROLE_ADMIN`

@@ -5,12 +5,14 @@ import io.github.abbassizied.bug_tracker.projects.domain.ProjectStatus;
 import io.github.abbassizied.bug_tracker.projects.dto.ProjectRequest;
 import io.github.abbassizied.bug_tracker.projects.dto.ProjectResponse;
 import io.github.abbassizied.bug_tracker.projects.service.ProjectService;
+import io.github.abbassizied.bug_tracker.users.service.UserDetailsImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,14 +29,20 @@ public class ProjectController {
     // 🔐 Only Manager or Admin can create projects
     @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     @PostMapping
-    public ResponseEntity<ProjectResponse> createProject(@Valid @RequestBody ProjectRequest projectRequest,
-            @RequestHeader("X-User-Id") Long ownerId) {
-        log.info("Creating project for owner ID: {}", ownerId);
+    public ResponseEntity<ProjectResponse> createProject(@Valid @RequestBody ProjectRequest projectRequest) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        Long userId = userDetails.getId(); // ✅ current logged-in user's ID
+
+        log.info("Creating project for owner ID: {}", userId);
 
         Project project = Project.builder()
                 .name(projectRequest.getName())
                 .description(projectRequest.getDescription())
-                .ownerId(ownerId)
+                .ownerId(userId)
                 .status(projectRequest.getStatus() != null ? projectRequest.getStatus() : ProjectStatus.ACTIVE)
                 .build();
 

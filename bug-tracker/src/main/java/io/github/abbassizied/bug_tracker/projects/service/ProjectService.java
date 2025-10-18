@@ -30,4 +30,12 @@ public interface ProjectService {
     boolean existsByName(String name);
 
     long countProjectsByOwner(Long ownerId);
+
+    void assignDefaultProjectsToNewUser(Long userId);
+
+    void removeUserFromAllProjects(Long userId);
+
+    void notifyProjectMembersOfNewBug(Long projectId, Long bugId);
+
+    void updateProjectStatusOnBugResolution(Long projectId, Long bugId);
 }

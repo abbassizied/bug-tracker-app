@@ -2,17 +2,21 @@ package io.github.abbassizied.bug_tracker.users.service;
 
 import io.github.abbassizied.bug_tracker.users.domain.User;
 import io.github.abbassizied.bug_tracker.users.domain.Role;
+import io.github.abbassizied.bug_tracker.events.UserDeactivated;
+import io.github.abbassizied.bug_tracker.events.UserRegistered;
+import io.github.abbassizied.bug_tracker.events.UserRoleChanged;
 import io.github.abbassizied.bug_tracker.users.domain.ERole;
 import io.github.abbassizied.bug_tracker.users.dto.UserRequest;
 import io.github.abbassizied.bug_tracker.users.repo.RoleRepository;
 import io.github.abbassizied.bug_tracker.users.repo.UserRepository;
-import io.github.abbassizied.bug_tracker.users.UserEvents;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+// import org.springframework.context.annotation.Lazy;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -28,8 +32,13 @@ public class UserService {
     private final ApplicationEventPublisher eventPublisher;
     private final PasswordEncoder passwordEncoder;
 
-    // 👇 Inject proxy of this class
-    private final UserService self;
+    /*
+     * 👇 Inject proxy of this class
+     * 
+     * @Lazy
+     * private final UserService self;
+     */
+    //
 
     /**
      * 🧩 Register new user
@@ -53,9 +62,9 @@ public class UserService {
 
         User saved = userRepository.save(user);
 
-        // Publish event
+        // Publish event: User registration
         eventPublisher.publishEvent(
-                new UserEvents.UserRegistered(saved.getId(), saved.getUsername(),
+                new UserRegistered(saved.getId(), saved.getUsername(),
                         saved.getRoles().stream().map(r -> r.getName().name()).toList()));
 
         log.info("✅ Registered new user: {} (roles: {})", saved.getUsername(),
@@ -107,7 +116,7 @@ public class UserService {
         return userRepository.findAll().stream()
                 .filter(u -> u.getRoles().stream()
                         .anyMatch(r -> r.getName() == role))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     // 🧮 Count users by role
@@ -123,7 +132,7 @@ public class UserService {
      */
     public User updateUser(Long id, UserRequest userRequest) {
         // ✅ Use injected proxy instead of `this`
-        User existing = self.getUserById(id);
+        User existing = getUserById(id);
 
         if (userRequest.getUsername() != null)
             existing.setUsername(userRequest.getUsername());
@@ -140,7 +149,7 @@ public class UserService {
         log.info("✏️ Updated user: {}", updated.getUsername());
 
         eventPublisher.publishEvent(
-                new UserEvents.UserRoleChanged(updated.getId(),
+                new UserRoleChanged(updated.getId(),
                         updated.getRoles().stream().map(r -> r.getName().name()).toList()));
 
         return updated;
@@ -151,11 +160,11 @@ public class UserService {
      */
     public User deactivateUser(Long id) {
         // ✅ Use injected proxy instead of `this`
-        User user = self.getUserById(id);
+        User user = getUserById(id);
         user.setActive(false);
         User deactivated = userRepository.save(user);
 
-        eventPublisher.publishEvent(new UserEvents.UserDeactivated(user.getId()));
+        eventPublisher.publishEvent(new UserDeactivated(user.getId()));
         log.info("🚫 Deactivated user ID: {}", id);
         return deactivated;
     }
@@ -165,9 +174,9 @@ public class UserService {
      */
     public void deleteUser(Long id) {
         // ✅ Use injected proxy instead of `this`
-        User user = self.getUserById(id);
+        User user = getUserById(id);
         userRepository.deleteById(id);
-        eventPublisher.publishEvent(new UserEvents.UserDeactivated(user.getId()));
+        eventPublisher.publishEvent(new UserDeactivated(user.getId()));
         log.info("🗑️ Deleted user ID: {}", id);
     }
 }

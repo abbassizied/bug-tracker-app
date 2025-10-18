@@ -3,12 +3,14 @@ package io.github.abbassizied.bug_tracker.bugs.web;
 import io.github.abbassizied.bug_tracker.bugs.domain.*;
 import io.github.abbassizied.bug_tracker.bugs.dto.*;
 import io.github.abbassizied.bug_tracker.bugs.service.BugService;
+import io.github.abbassizied.bug_tracker.users.service.UserDetailsImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,16 +28,23 @@ public class BugController {
     @PreAuthorize("hasAnyRole('TESTER','MANAGER','ADMIN')")
     @PostMapping
     public ResponseEntity<BugResponse> createBug(
-            @Valid @RequestBody BugRequest bugRequest,
-            @RequestHeader("X-User-Id") Long reporterId) {
-        log.info("Creating bug for reporter ID: {}", reporterId);
+            @Valid @RequestBody BugRequest bugRequest) {
+
+        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        Long userId = userDetails.getId(); // ✅ current logged-in user's ID
+
+        log.info("Creating bug for reporter ID: {}", userId);
 
         Bug bug = Bug.builder()
                 .title(bugRequest.getTitle())
                 .description(bugRequest.getDescription())
                 .severity(bugRequest.getSeverity())
                 .status(bugRequest.getStatus() != null ? bugRequest.getStatus() : BugStatus.OPEN)
-                .reporterId(reporterId)
+                .reporterId(userId)
                 .assigneeId(bugRequest.getAssigneeId())
                 .projectId(bugRequest.getProjectId())
                 .build();

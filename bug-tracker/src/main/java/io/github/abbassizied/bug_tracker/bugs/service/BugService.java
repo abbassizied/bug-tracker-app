@@ -36,4 +36,10 @@ public interface BugService {
     long countBugsByProject(Long projectId);
 
     long countBugsByProjectAndStatus(Long projectId, BugStatus status);
+
+    void closeAllProjectBugs(Long projectId);
+
+    List<Bug> findByProjectId(Long projectId);
+    
+    void deleteAll(List<Bug> bugs);
 }
